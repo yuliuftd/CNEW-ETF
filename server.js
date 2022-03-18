@@ -2,7 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const app = express();
 const xlsx = require("node-xlsx");
-const excelFilePath = "./CNEW_asat_20220310.xls";
+const excelFilePath = "./CNEW_asat_20220317.xls";
 const sheets = xlsx.parse(excelFilePath);
 console.log(sheets[0].data);
 app.get("/list", async (req, res) => {
