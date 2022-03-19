@@ -1,10 +1,11 @@
 const express = require("express");
 const axios = require("axios");
 const app = express();
+const PORT = process.env.PORT || 5000;
 const xlsx = require("node-xlsx");
 const excelFilePath = "./CNEW_asat_20220317.xls";
 const sheets = xlsx.parse(excelFilePath);
-console.log(sheets[0].data);
+
 app.get("/list", async (req, res) => {
   let stockArray = sheets[0].data.slice(2, -1);
   const stockList = [];
@@ -23,8 +24,10 @@ app.get("/list", async (req, res) => {
 app.get("/proportion", async (req, res) => {
   let stockArray = sheets[0].data.slice(2, -1);
   const proportionList = [];
-  stockArray.forEach((x) => proportionList.push(x[5]));
+  stockArray.forEach((x) =>
+    proportionList.push({ proportion: x[5], marketValue: x[4] })
+  );
   res.send(proportionList);
 });
 
-app.listen(5000, () => console.log("Listening on port 5000 ..."));
+app.listen(PORT, () => console.log(`Listening on port ${PORT} ...`));

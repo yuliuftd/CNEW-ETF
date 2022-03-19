@@ -36,9 +36,19 @@ const colums = [
     key: "priceChange",
   },
   {
-    title: "净值占比",
+    title: "昨日净值占比",
     dataIndex: "proportion",
     key: "proportion",
+  },
+  {
+    title: "昨日持仓市值(澳币)",
+    dataIndex: "marketValue",
+    key: "marketValue",
+  },
+  {
+    title: "预计持仓市值(澳币)",
+    dataIndex: "predictMarketValue",
+    key: "predictMarketValue",
   },
 ];
 export default function StockTable() {
@@ -90,11 +100,19 @@ export default function StockTable() {
             priceChange: strArr[4],
             precentageChange: `${strArr[5]}%`,
             capital: strArr[9],
-            proportion: ratio[index],
+            proportion: ratio[index].proportion,
+            marketValue: ratio[index].marketValue,
+            predictMarketValue:
+              "$" +
+              (
+                ((1 + strArr[5].split("%")[0] / 100) *
+                  ratio[index].marketValue.match(/[0-9]/g).join("")) /
+                100
+              ).toFixed(2),
           };
         });
         setData(stockArr);
-        console.log(stockArr);
+        // console.log(stockArr);
       })
       .catch((error) => console.log(error));
   };
@@ -102,12 +120,11 @@ export default function StockTable() {
     if (data && ratio) {
       let sum = 0.013; //剩余现金等价物
       for (let i = 0; i < data.length; i++) {
-        debugger;
-        let a = data[i].precentageChange.split("%")[0] / 100;
-        let b = ratio[i].split("%")[0] / 100;
+        let a = data[i].precentageChange.split("%")[0] / 100; //涨跌幅
+        let b = ratio[i].split("%")[0] / 100; //净值占比
         sum = sum + b * (1 + a);
       }
-      setToday_Net(sum);
+      setToday_Net(sum); //整个基金的涨跌幅
     }
   };
   return (
