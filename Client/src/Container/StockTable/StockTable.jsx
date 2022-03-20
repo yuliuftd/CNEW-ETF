@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Table, Button, Row, Col, Card, Divider, Input, Statistic } from "antd";
 
-const list_url = "http://localhost:3000/list";
-const proportion_url = "http://localhost:3000/proportion";
-const value_url = "http://localhost:3000/yesMarketValue";
+const list_url = "/list";
+const proportion_url = "/proportion";
+const value_url = "/yesMarketValue";
 const colums = [
   {
     title: "编号",
