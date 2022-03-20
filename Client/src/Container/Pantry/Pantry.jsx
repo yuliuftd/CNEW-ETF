@@ -38,7 +38,7 @@ function Pantry(props) {
     <div>
       <h2>Let's see what we'v got here!</h2>
       {ingredients.map((x, index) => (
-        <React.Fragment>
+        <React.Fragment key={index + 1 * 1}>
           <Row>
             <Col span={6}>
               <Button

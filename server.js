@@ -30,4 +30,11 @@ app.get("/proportion", async (req, res) => {
   res.send(proportionList);
 });
 
+app.get("/yesMarketValue", async (req, res) => {
+  let stockArray = sheets[0].data.slice(2);
+  let total = 0;
+  stockArray.forEach((x) => (total += x[4].match(/[0-9]/g).join("") / 100));
+  res.send(total.toFixed(2).toString());
+});
+
 app.listen(PORT, () => console.log(`Listening on port ${PORT} ...`));

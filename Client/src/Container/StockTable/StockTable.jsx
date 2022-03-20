@@ -4,11 +4,12 @@ import { Table, Button, Row, Col, Card, Divider, Input, Statistic } from "antd";
 
 const list_url = "http://localhost:3000/list";
 const proportion_url = "http://localhost:3000/proportion";
+const value_url = "http://localhost:3000/yesMarketValue";
 const colums = [
   {
     title: "编号",
-    dataIndex: "index",
-    key: "index",
+    dataIndex: "key",
+    key: "key",
   },
   {
     title: "代码",
@@ -62,10 +63,13 @@ export default function StockTable() {
   const [yes_Net, setYes_Net] = useState("");
   //今日预估净值
   const [today_Net, setToday_Net] = useState(1);
+  //昨日和今日的市值
+  const [yes_Total, setYes_Total] = useState(0);
+  const [today_Total, setToday_Total] = useState(0);
   //生成股票表格需要的数据（占比部分除外， 有单独的接口推送）
   const [data, setData] = useState([
     {
-      index: 1,
+      key: 1,
       stockName: "贵州茅台",
       stockCode: "600519",
       close: 2015,
@@ -73,6 +77,8 @@ export default function StockTable() {
       precentageChange: "1%",
       capital: 20000,
       proportion: "2%",
+      marketValue: 0,
+      predictMarketValue: 0,
     },
   ]);
   useEffect(() => {
@@ -84,6 +90,10 @@ export default function StockTable() {
       .get(proportion_url)
       .then((res) => setRatio(res.data))
       .catch((err) => console.log(err));
+    axios
+      .get(value_url)
+      .then((res) => setYes_Total(res.data))
+      .catch((err) => console.log(err));
   });
   const SearchAllStocks = () => {
     axios
@@ -93,7 +103,7 @@ export default function StockTable() {
         let stockArr = originalArr.map((x, index) => {
           let strArr = x.split("~");
           return {
-            index: (index + 1) * 1,
+            key: (index + 1) * 1,
             stockName: strArr[1],
             stockCode: strArr[2],
             close: strArr[3],
@@ -116,33 +126,37 @@ export default function StockTable() {
       })
       .catch((error) => console.log(error));
   };
-  const calNetAssetWithoutXRate = () => {
+  const calTodayTotalMarketValue = () => {
     if (data && ratio) {
-      let sum = 0.013; //剩余现金等价物
+      let sum = 139564.38; //剩余现金等价物
+      debugger;
       for (let i = 0; i < data.length; i++) {
-        let a = data[i].precentageChange.split("%")[0] / 100; //涨跌幅
-        let b = ratio[i].split("%")[0] / 100; //净值占比
-        sum = sum + b * (1 + a);
+        sum += data[i].predictMarketValue.match(/[0-9]/g).join("") / 100;
       }
-      setToday_Net(sum); //整个基金的涨跌幅
+      setToday_Total(sum.toFixed(2)); //整个基金的涨跌幅
     }
   };
   return (
     <div>
-      <Row gutter={16} style={{ backgroundColor: "#1890ff" }}>
-        <Col span={8}>
-          <Card title="昨日净值" hoverable={true} style={{ width: "100%" }}>
+      <Row gutter={16} style={{ backgroundColor: "#eee" }}>
+        <Col span={8} key="1">
+          <Card
+            title="昨日净值与市值"
+            hoverable={true}
+            style={{ width: "100%" }}
+          >
             <Input
               onChange={(e) => setYes_Net(e.target.value)}
               value={yes_Net}
               type="number"
               placeholder="请输入昨日净值"
             />
+            <Statistic title="Yesterday Market Value:" value={yes_Total} />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col span={8} key="2">
           <Card
-            title="CNY/AUD汇率波动 %"
+            title="CNY/AUD汇率中间价波动（%）"
             hoverable={true}
             style={{ width: "100%" }}
           >
@@ -152,26 +166,36 @@ export default function StockTable() {
               type="number"
               placeholder="请输入汇率变动"
             />
+            <Statistic
+              title="Today's Market value after exchangeRate:"
+              value={
+                today_Total !== 0 && xRatechange !== ""
+                  ? (today_Total * (1 + xRatechange / 100)).toFixed(2)
+                  : 0
+              }
+            />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col span={8} key="3">
           <Card title="今日净值预估" hoverable={true} style={{ width: "100%" }}>
             <Row>
-              <Col style={{ marginRight: 10, textAlign: "center" }}>
-                <Button type="primary" onClick={calNetAssetWithoutXRate}>
-                  计算（不含汇率）
+              <Col style={{ marginRight: 10, textAlign: "center" }} key="1">
+                <Button type="primary" onClick={calTodayTotalMarketValue}>
+                  计算今日市值
                 </Button>
-                <Statistic title="Net Asset" value={today_Net * yes_Net} />
+                <Statistic title="Net Asset" value={today_Total} />
               </Col>
-              <Col style={{ marginRight: 10, textAlign: "center" }}>
-                <Button type="primary">计算（包含汇率）</Button>
+              <Col style={{ marginRight: 10, textAlign: "center" }} key="2">
+                <Button type="primary">计算今日净值（包含汇率）</Button>
                 <Statistic
                   title="Net Asset"
-                  value={today_Net * yes_Net * (1 + xRatechange / 100)}
+                  value={(
+                    (yes_Net / yes_Total) *
+                    (today_Total * (1 + xRatechange / 100)).toFixed(2)
+                  ).toFixed(2)}
                 />
               </Col>
             </Row>
-            <Row></Row>
           </Card>
         </Col>
       </Row>

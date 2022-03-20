@@ -90,13 +90,15 @@ const Recipe = (props) => {
         <h2>Here you can see all Cook-Master recipes list:</h2>
         {recipes &&
           recipes.map((x, index) => (
-            <React.Fragment>
+            <React.Fragment key={index + 1 * 1}>
               <Row style={{ marginBottom: 10 }}>
                 <Col span={18}>
                   <Card title={`Cooking Recipe ${index + 1}`} bordered={false}>
                     <p>{x.recipeMethod}</p>
                     {x.recipeIngredients.map((y, index) => (
-                      <p>{`${index + 1}.  ${y.name} x ${y.quantity}`}</p>
+                      <p key={index + 1 * 1}>{`${index + 1}.  ${y.name} x ${
+                        y.quantity
+                      }`}</p>
                     ))}
                   </Card>
                 </Col>
@@ -169,7 +171,7 @@ const Recipe = (props) => {
                   Ingredient.length > 0 &&
                   Ingredient.map((item, index) => {
                     return (
-                      <Row>
+                      <Row key={index}>
                         <Col span={9}>
                           <Input
                             placeholder="Input Ingredient"
