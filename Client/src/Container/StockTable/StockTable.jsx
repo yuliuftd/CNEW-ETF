@@ -22,6 +22,11 @@ const colums = [
     key: "stockName",
   },
   {
+    title: "持股",
+    dataIndex: "sharesHolding",
+    key: "sharesHolding",
+  },
+  {
     title: "收盘价",
     dataIndex: "close",
     key: "close",
@@ -61,8 +66,6 @@ export default function StockTable() {
   const [xRatechange, setxRatechange] = useState("");
   //昨日收盘净值
   const [yes_Net, setYes_Net] = useState("");
-  //今日预估净值
-  const [today_Net, setToday_Net] = useState(1);
   //昨日和今日的市值
   const [yes_Total, setYes_Total] = useState(0);
   const [today_Total, setToday_Total] = useState(0);
@@ -72,6 +75,7 @@ export default function StockTable() {
       key: 1,
       stockName: "贵州茅台",
       stockCode: "600519",
+      sharesHolding: 300,
       close: 2015,
       priceChange: -12,
       precentageChange: "1%",
@@ -94,7 +98,7 @@ export default function StockTable() {
       .get(value_url)
       .then((res) => setYes_Total(res.data))
       .catch((err) => console.log(err));
-  });
+  }, []);
   const SearchAllStocks = () => {
     axios
       .get(uri)
@@ -106,6 +110,7 @@ export default function StockTable() {
             key: (index + 1) * 1,
             stockName: strArr[1],
             stockCode: strArr[2],
+            sharesHolding: ratio[index].sharesHolding,
             close: strArr[3],
             priceChange: strArr[4],
             precentageChange: `${strArr[5]}%`,

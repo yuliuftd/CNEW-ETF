@@ -26,7 +26,11 @@ app.get("/proportion", async (req, res) => {
   let stockArray = sheets[0].data.slice(2, -1);
   const proportionList = [];
   stockArray.forEach((x) =>
-    proportionList.push({ proportion: x[5], marketValue: x[4] })
+    proportionList.push({
+      proportion: x[5],
+      marketValue: x[4],
+      sharesHolding: x[3],
+    })
   );
   res.send(proportionList);
 });
