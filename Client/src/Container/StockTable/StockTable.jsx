@@ -62,14 +62,17 @@ export default function StockTable() {
   const [uri, setUri] = useState("");
   //每只股票在基金净值中占比的数列
   const [ratio, setRatio] = useState("");
-  //当日汇率变动
-  const [xRatechange, setxRatechange] = useState("");
   //昨日收盘净值
   const [yes_Net, setYes_Net] = useState("");
   //昨日和今日的市值
   const [yes_Total, setYes_Total] = useState(0);
   const [today_Total, setToday_Total] = useState(0);
   //生成股票表格需要的数据（占比部分除外， 有单独的接口推送）
+  const [rmb_today, setRmb_today] = useState(0);
+  const [rmb_yes, setRmb_yes] = useState(0);
+  const [yes_xRate, SetYes_xRate] = useState("");
+  const [today_xRate, SetToday_xRate] = useState("");
+
   const [data, setData] = useState([
     {
       key: 1,
@@ -134,11 +137,19 @@ export default function StockTable() {
   const calTodayTotalMarketValue = () => {
     if (data && ratio) {
       let sum = 139564.38; //剩余现金等价物
-      debugger;
+      let rmb_sum = 139564.38 * 4.75; //人民币余额
+      let yes_rmb_sum = 139465.38 * 4.75;
       for (let i = 0; i < data.length; i++) {
         sum += data[i].predictMarketValue.match(/[0-9]/g).join("") / 100;
+        rmb_sum +=
+          data[i].close * data[i].sharesHolding.match(/[0-9]/g).join("");
+        yes_rmb_sum +=
+          (data[i].close - data[i].priceChange) *
+          data[i].sharesHolding.match(/[0-9]/g).join("");
       }
-      setToday_Total(sum.toFixed(2)); //整个基金的涨跌幅
+      setToday_Total(sum.toFixed(2)); //今天澳币总市值
+      setRmb_today(rmb_sum.toFixed(2)); //今天人民币总市值
+      setRmb_yes(yes_rmb_sum.toFixed(2)); //昨天人民币总市值
     }
   };
   return (
@@ -156,7 +167,11 @@ export default function StockTable() {
               type="number"
               placeholder="请输入昨日净值"
             />
-            <Statistic title="Yesterday Market Value:" value={yes_Total} />
+            <Statistic
+              title="Yesterday Market Value (AUD):"
+              value={yes_Total}
+            />
+            <Statistic title="Yesterday Market Value (RMB):" value={rmb_yes} />
           </Card>
         </Col>
         <Col span={8} key="2">
@@ -165,18 +180,38 @@ export default function StockTable() {
             hoverable={true}
             style={{ width: "100%" }}
           >
-            <Input
-              onChange={(e) => setxRatechange(e.target.value)}
-              value={xRatechange}
-              type="number"
-              placeholder="请输入汇率变动"
-            />
+            <Row>
+              <Col>
+                <Input
+                  onChange={(e) => SetYes_xRate(e.target.value)}
+                  value={yes_xRate}
+                  type="number"
+                  placeholder="请输入初始汇率"
+                />
+              </Col>
+              <Col>
+                <Input
+                  onChange={(e) => SetToday_xRate(e.target.value)}
+                  value={today_xRate}
+                  type="number"
+                  placeholder="请输入今日汇率"
+                />
+              </Col>
+            </Row>
             <Statistic
               title="Today's Market value after exchangeRate:"
               value={
-                today_Total !== 0 && xRatechange !== ""
-                  ? (today_Total * (1 + xRatechange / 100)).toFixed(2)
+                today_Total !== 0 && yes_xRate !== "" && today_xRate !== ""
+                  ? (rmb_today / today_xRate).toFixed(2)
                   : 0
+              }
+            />
+            <Statistic
+              title="Yesterday & Today Exchange Rate:"
+              value={
+                (rmb_yes / yes_Total).toFixed(4) +
+                " / " +
+                (rmb_today / today_Total).toFixed(4)
               }
             />
           </Card>
@@ -188,15 +223,19 @@ export default function StockTable() {
                 <Button type="primary" onClick={calTodayTotalMarketValue}>
                   计算今日市值
                 </Button>
-                <Statistic title="Net Asset" value={today_Total} />
+                <Statistic
+                  title="Today Market Value(AUD):"
+                  value={today_Total}
+                />
+                <Statistic title="Today Market Value(RMB):" value={rmb_today} />
               </Col>
               <Col style={{ marginRight: 10, textAlign: "center" }} key="2">
                 <Button type="primary">计算今日净值（包含汇率）</Button>
                 <Statistic
                   title="Net Asset"
                   value={(
-                    (yes_Net / yes_Total) *
-                    (today_Total * (1 + xRatechange / 100)).toFixed(2)
+                    (rmb_today / today_xRate / yes_Total) *
+                    yes_Net
                   ).toFixed(2)}
                 />
               </Col>
