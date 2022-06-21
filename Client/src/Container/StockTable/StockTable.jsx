@@ -136,9 +136,9 @@ export default function StockTable() {
   };
   const calTodayTotalMarketValue = () => {
     if (data && ratio) {
-      let sum = 139564.38; //剩余现金等价物
-      let rmb_sum = 139564.38 * 4.75; //人民币余额
-      let yes_rmb_sum = 139465.38 * 4.75;
+      let sum = 312303; //剩余现金等价物
+      let rmb_sum = sum * 4.75; //人民币余额
+      let yes_rmb_sum = sum * 4.75;
       for (let i = 0; i < data.length; i++) {
         sum += data[i].predictMarketValue.match(/[0-9]/g).join("") / 100;
         rmb_sum +=
@@ -251,7 +251,9 @@ export default function StockTable() {
       >
         Fetch Stock Data
       </Button>
-
+      <Button type="primary" style={{ marginBottom: 30, marginLeft: 10 }}>
+        Switch to CETF
+      </Button>
       {data && data.length !== 0 ? (
         <Table
           dataSource={data}
