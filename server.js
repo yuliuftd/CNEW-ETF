@@ -4,7 +4,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const xlsx = require("node-xlsx");
-const excelFilePath = "./CNEW_asat_20220621.xls";
+const excelFilePath = "./CNEW_asat_20220719.xls";
 // const excelFilePath = "./CETF_asat_20220331.xls";
 const sheets = xlsx.parse(excelFilePath);
 
